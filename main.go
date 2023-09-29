@@ -40,10 +40,14 @@ func main() {
 	http.HandleFunc("/read-message", readKafkaMessage)
 
 	log.Println("Starting web server on port 8080...")
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		log.Fatalf("Failed to start server: %v", err)
-	}
+	go func() {
+		err := http.ListenAndServe(":8080", nil)
+		if err != nil {
+			log.Fatalf("Failed to start server: %v", err)
+		}
+	}()
+
+	select {}
 
 }
 
@@ -78,7 +82,8 @@ func pushkafkaMessage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	//simulate message creation with random delay
-	time.Sleep(time.Duration(rand.Intn(5)) * time.Second)
+	time.Sleep(time.Duration(rand.Intn(10)) * time.Second)
+	//time.Sleep(time.Duration(10 * time.Second))
 
 	message := fmt.Sprintf("(%s, %d)", time.Now().UTC().Format(time.RFC3339), topicCounter)
 	topicCounter++
@@ -106,7 +111,7 @@ func readKafkaMessage(w http.ResponseWriter, r *http.Request) {
 
 	partitionConsumer, err := consumer.ConsumePartition(topicName, 0, sarama.OffsetOldest)
 	if err != nil {
-		println("Error getting partition =consumer")
+		println("Error getting partition consumer %v", err)
 		return
 	}
 
@@ -126,7 +131,7 @@ func readKafkaMessage(w http.ResponseWriter, r *http.Request) {
 					fmt.Println("Channel Closed. Exiting")
 					return
 				}
-				fmt.Fprintf(w, string(msg.Value))
+				fmt.Fprintf(w, "%s\n", string(msg.Value))
 				fmt.Println("Message Received", string(msg.Value))
 				if msg.Offset == lastOffset-1 {
 					partitionConsumer.AsyncClose()
