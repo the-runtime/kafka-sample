@@ -1,5 +1,5 @@
 # Kafka Testing Project
-This sample project is designed for testing how Kafka works. It provides a simple HTTP server that exposes three endpoints for Kafka operations: creating a topic, pushing a message to a topic, and reading messages from a topic.
+This sample project is designed for testing how to use kafka with golang. It provides a simple HTTP server that exposes three endpoints for Kafka operations: creating a topic, pushing a message to a topic, and reading messages from a topic.
 
 ## Setup
 Make sure you have a Kafka broker running on localhost:9092 before running the project.
